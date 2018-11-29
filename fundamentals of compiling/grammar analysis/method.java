@@ -6,9 +6,9 @@ import java.util.List;
 public class method {
      static int  index=0;
     public static void main(String []args){
-        String input="begin { x=3; if(x==2) { y=3; } } end";
+        String input="begin { x=3 ; if(x==2) { y=3; } } end";
         String input2="begin{ if( ) y=3; }end";
-        String input3="begin{ while( x<3 ) { y=x+1; } } end";
+        String input3="begin{ while( x<3 ) {  y=x+1 ; } } end";
             String []in=input3.split(" ");//空格分割
             for(String token : in) {
                 morphology.scan(token);//进行词法分析，得到word list
@@ -30,15 +30,15 @@ public class method {
                 if (w.get(index).word.equals("end")) {
                     System.out.println("正确结束！");
                 } else {
-                    System.out.println("error");
+                    System.out.println("error!!"+"  index->  "+index);
                 }
             }
             else
-                System.out.println("error");
+                System.out.println("error!!"+"  index->  "+index);
         }
         else
         {
-            System.out.println("error!");
+            System.out.println("error!!"+"  index->  "+index);
         }
     }
     static boolean statementss(List<Word>w){//语句块
