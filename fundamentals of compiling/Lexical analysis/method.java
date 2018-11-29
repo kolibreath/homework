@@ -1,271 +1,270 @@
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
+
 import java.util.LinkedList;
 import java.util.List;
 
 public class method {
-    static String[] list={"main","int","char","if","else","for","while"};
+     static int  index=0;
+    public static void main(String []args){
+        String input="begin { x=3 ; if(x==2) { y=3; } } end";
+        String input2="begin{ if( ) y=3; }end";
+        String input3="begin{ while( x<3 ) {  y=x+1 ; } } end";
+            String []in=input3.split(" ");//空格分割
+            for(String token : in) {
+                morphology.scan(token);//进行词法分析，得到word list
+            }
 
-    static List<Word> words=new LinkedList<>();
-    public static void main(String[]p){
-        String input="x==1 ; begin start #";
-        String []in=input.split(" ");//空格分割
-        for(String token : in){
-            scan(token);
-        }
-        for(Word w : words){
-            System.out.println("word:"+w.word+"   typenum"+w.typenum);
+        program(morphology.words);
+        for(Word s : morphology.words){
+            System.out.print(s.word + "  ");
         }
     }
-    static void scan(String token){
-        int index=0;
-        int start=0;
-        while(index<token.length() && start<token.length()){
-            char ch=token.charAt(start);
-            if(letter(ch) || digit(ch)){
-            while(letter(ch) || digit(ch)){
+    static void program(List<Word> w){
+        Word ww=w.get(index);
+        String sw=ww.word;
+        if(sw.equals("begin"))
+        {
+            index++;
+            if(statementss(w)) {//语句串
                 index++;
-                if(index<token.length())
-                ch=token.charAt(index);
-                else
-                ch='#';//用于退出
+                if (w.get(index).word.equals("end")) {
+                    System.out.println("正确结束！");
+                } else {
+                    System.out.println("error!!"+"  index->  "+index);
+                }
             }
-            if(index>start) {
-                String s = token.substring(start, index);
-                ld(s);
-            }
-            /*if(index+2<token.length())
+            else
+                System.out.println("error!!"+"  index->  "+index);
+        }
+        else
+        {
+            System.out.println("error!!"+"  index->  "+index);
+        }
+    }
+    static boolean statementss(List<Word>w){//语句块
+        if(w.get(index).word.equals("{"))
+        {
+            index++;
+            if(statements(w))
             {
-                String s=token.substring(index,index+2);
-                w(s);
-            }*/
-            start=index;
+                index++;
+                if(w.get(index).word.equals("}"))
+                    return true;
+                else
+                    return false;
             }
-            else{
-                if(index+1==token.length())
+            else
+                return false;
+        }
+        else
+            return false;
+    }
+    static boolean statements(List<Word> w){//语句串
+        if(statement(w))
+        {
+            index++;
+            while(w.get(index).word.equals(";")){
+                index++;
+                if(statement(w))
+                    index++;
+            }
+            index--;
+            return true;
+        }
+        else
+            return false;
+    }
+    static boolean statement(List<Word> w){//语句
+        if(assginment(w) || condition(w) || loop(w)){
+            return true;
+        }
+        else
+            return false;
+    }
+    static boolean assginment(List<Word>w){//赋值语句
+        if(ID(w))
+        {
+            index++;
+            if(w.get(index).word.equals("=")) {
+                index++;
+                if (expression(w))
+                        return true;
+                    else
+
+                    return false;
+                }
+
+                else
+            {
+                index--;
+                return false;
+            }
+        }
+            else
+                return false;
+    }
+    static boolean condition(List<Word>w){//条件语句
+        if(w.get(index).word.equals("if"))
+        {
+            index++;
+            if(w.get(index).word.equals("("))
+            {
+                index++;
+                if(conditions(w))
                 {
-                    String s=token.substring(index,index+1);
-                    w(s);
-                    start=index+1;
+                    index++;
+                    if(w.get(index).word.equals(")"))
+                    {
+                        index++;
+                        if(statementss(w))
+                        {
+                            return true;
+                        }
+                        else
+                            return false;
+                    }
+                    else
+                        return false;
                 }
                 else
-                {
-                    String s;
-                    if(!(letter(token.charAt(index+1)) || digit(token.charAt(index+1))))
-                    {
-                        char c1=token.charAt(index);
-                        char c2=token.charAt(index+1);
-                        s=token.substring(index,index+2);
-                        index=index+2;
-                    }
-                    else{
-                        s=token.substring(index ,index+1);
-                        index=index+1;
-                    }
-                    w(s);
-                    start=index;
-                }
+                    return false;
             }
+            else
+                return false;
         }
+        else
+            return false;
     }
- //检测字母数字
-    static void ld(String token) {
-
-        Word word = new Word();
-        char ch = token.charAt(0);
-        if (letter(ch)) {
-            word.typenum = checkKeyWord(token);
-            word.word = token;
-            words.add(word);
-        } else if (digit(ch)) {
-            word.word = token;
-            word.typenum = 20;
-            words.add(word);
+    static boolean loop(List<Word>w){//循环语句
+        if(w.get(index).word.equals("while")) {
+            index++;
+            if (w.get(index).word.equals("(")) {
+                index++;
+                if (conditions(w)) {
+                        index++;
+                        if(w.get(index).word.equals(")")) {
+                            index++;
+                            if (statementss(w))
+                                return true;
+                            else
+                                return false;
+                        }
+                        else
+                            return false;
+                }
+                else
+                    return false;
+            }
+            else
+                return false;
         }
+        else
+            return false;
     }
-    //检测字符
-    static void w(String token){
-        Word word = new Word();
-        char ch=token.charAt(0);
-        switch (ch){
-                case '=':
-                    if(token.length()==1) {
-                        word.word = "=";
-                        word.typenum = 21;
-                        words.add(word);
-                        break;
-                    }
-                    else {
-                        char temp = token.charAt(1);
-                        if (temp == '=') {
-                            word.word = "==";
-                            word.typenum = 39;
-                            words.add(word);
-                            break;
-                        }
-                    }
+    static boolean conditions(List<Word>w){//条件
+        if(expression(w)){
+            index++;
+            if(operator(w))
+            {
+                index++;
+                if(expression(w))
+                    return true;
+                else
+                    return false;
 
-                case '+':
-                    word.word="+";
-                    word.typenum=22;
-                    words.add(word);
-                    break;
-
-                case '-':
-                    word.word="-";
-                    word.typenum=23;
-                    words.add(word);
-                    break;
-
-                case '*':
-                    word.typenum=24;
-                    word.word="*";
-                    words.add(word);
-                    break;
-
-                case '/':
-                    word.word="/";
-                    word.typenum=25;
-                    words.add(word);
-                    break;
-
-                case '(':
-                    word.word="(";
-                    word.typenum=26;
-                    words.add(word);
-                    break;
-
-                case ')':
-                    word.word=")";
-                    word.typenum=27;
-                    words.add(word);
-                    break;
-
-                case '[':
-                    word.word="[";
-                    word.typenum=28;
-                    words.add(word);
-                    break;
-
-                case ']':
-                    word.word="]";
-                    word.typenum=29;
-                    words.add(word);
-                    break;
-
-                case '{':
-                    word.word="{";
-                    word.typenum=30;
-                    words.add(word);
-                    break;
-
-                case '}':
-                    word.word="}";
-                    word.typenum=31;
-                    words.add(word);
-                    break;
-
-                case ',':
-                    word.word=",";
-                    word.typenum=32;
-                    words.add(word);
-                    break;
-
-                case ':':
-                    word.word=":";
-                    word.typenum=33;
-                    words.add(word);
-                    break;
-
-                case ';':
-                    word.word=";";
-                    word.typenum=34;
-                    words.add(word);
-                    break;
-
-                case '>':
-                    if(token.length()==1) {
-                        word.word = ">";
-                        word.typenum = 35;
-                        words.add(word);
-                        break;
-                    }
-                    else {
-                        char temp = token.charAt(1);
-                        if (temp == '=') {
-                            word.word = ">=";
-                            word.typenum = 37;
-                            words.add(word);
-                            break;
-                        }
-                    }
-
-                case '<':
-                    if(token.length()==1) {
-                        word.word = "<";
-                        word.typenum = 36;
-                        words.add(word);
-                        break;
-                    }
-                    else {
-                        char temp = token.charAt(1);
-                        if (temp == '=') {
-                            word.word = "<=";
-                            word.typenum = 38;
-                            words.add(word);
-                            break;
-                        }
-                    }
-
-                case '!':
-                    if(token.length()==1) {
-                        word.word = "!";
-                        word.typenum = 200;
-                        words.add(word);
-                        break;
-                    }
-                    else {
-                        char temp = token.charAt(1);
-                        if (temp == '=') {
-                            word.word = "!=";
-                            word.typenum = 40;
-                            words.add(word);
-                            break;
-                        }
-                    }
-
-                case '\0':
-                    word.word="OVER";
-                    word.typenum=1000;
-                    words.add(word);
-                    break;
-                case '#':
-                    word.word="OVER";
-                    word.typenum=1001;
-                    words.add(word);
-                    break;
-
-                default:
-                    word.word="ERROR";
-                    word.typenum=-1;
-                    words.add(word);
-                    break;
+            }
+            else
+                return false;
         }
+        else
+            return false;
     }
-    //判断字母
-    static boolean letter(char ch){
-        return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z';
+    static boolean expression(List<Word>w){//表达式
+        if(term(w)) {
+            index++;
+            while((w.get(index).word.equals("+") ||w.get(index).word.equals("-")))
+            {
+                index++;
+                if(term(w))
+                {
+                    index++;
+                }
+                else
+                    return false;
+            }
+            index--;
+            return true;
+        }
+        else
+            return false;
     }
-    //判断数字
-    static boolean digit(char ch){
-        if(ch>='0'&&ch<='9')return true;
-        return false;
+    static boolean term(List<Word>w){//项
+        if(factor(w))
+        {
+            index++;
+            while(w.get(index).word.equals("*") || w.get(index).word.equals("/"))
+            {
+                index++;
+                if(factor(w))
+                    return true;
+                else
+                    return false;
+            }
+            index--;
+            return true;
+        }
+        else
+            return false;
     }
-    //检索关键字
-   static int checkKeyWord(String token){
-       for(int i=0;i<list.length;i++)
-           if(token.equals(list[i]))
-               return i+1;
-       return 10;
+    static boolean factor(List<Word>w){//因子
+       if(ID(w) || NUM(w))
+       {
+           return true;
+       }
+       if(w.get(index).word.equals("("))
+       {
+           index++;
+           if(expression(w))
+           {
+               index++;
+               if(w.get(index).word.equals(")"))
+                   return true;
+               else
+                   return false;
+           }
+           else
+               return false;
+       }
+       else
+           return false;
     }
-
+    static boolean ID(List<Word>w){
+        String s=w.get(index).word;//取出当前的单词
+        int type=w.get(index).typenum;
+        if(type==10 || type==4 || type==7)
+           return true;
+        else
+            return false;
+    }
+    static boolean NUM(List<Word>w){
+        String s=w.get(index).word;//取出当前的单词
+        int type=w.get(index).typenum;
+        if(type==20)
+            return true;
+        else
+            return false;
+    }
+    static boolean operator(List<Word>w){//操作符
+        List<String> operators=new LinkedList<>();
+        operators.add("<=");
+        operators.add(">=");
+        operators.add("==");
+        operators.add("!=");
+        operators.add(">");
+        operators.add("<");
+        if(operators.contains(w.get(index).word))
+            return true;
+        else
+            return false;
+    }
 }
-
